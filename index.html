@@ -670,9 +670,14 @@
           priceHtml = `<span class="font-mono font-bold text-base text-white">${rupiah(p.final_price)}</span>`;
         }
 
-        const btnHtml = p.is_free
-          ? `<a href="${API_BASE_URL}/api/free-download/${p.id}" target="_blank" class="px-4 py-2 rounded-xl bg-obsidian-700 hover:bg-emerald-500 text-white hover:text-obsidian-950 font-display font-bold text-xs transition">Download</a>`
-          : `<button onclick="startCheckout('${p.id}')" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-obsidian-950 font-display font-bold text-xs transition">Beli Sekarang</button>`;
+        let btnHtml = '';
+        if (p.category === 'Jasa') {
+          btnHtml = `<button onclick="orderViaWhatsApp('${p.id}')" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-obsidian-950 font-display font-bold text-xs transition">Lanjutkan ke WhatsApp</button>`;
+        } else if (p.is_free) {
+          btnHtml = `<a href="${API_BASE_URL}/api/free-download/${p.id}" target="_blank" class="px-4 py-2 rounded-xl bg-obsidian-700 hover:bg-emerald-500 text-white hover:text-obsidian-950 font-display font-bold text-xs transition">Download</a>`;
+        } else {
+          btnHtml = `<button onclick="startCheckout('${p.id}')" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-obsidian-950 font-display font-bold text-xs transition">Beli Sekarang</button>`;
+        }
 
         return `
           <article class="card-surface rounded-2xl overflow-hidden flex flex-col justify-between">
@@ -745,6 +750,24 @@
     // =========================================================
     // CHECKOUT QRIS & POLLING STATUS
     // =========================================================
+    function orderViaWhatsApp(productId) {
+      const p = allProducts.find(item => item.id === productId);
+      if (!p) return;
+      const phone = "6289676623406";
+      const priceText = p.is_free ? "Gratis" : rupiah(p.final_price);
+      const message = [
+        "Halo Admin *OblivionStore*, saya tertarik untuk memesan layanan jasa berikut:",
+        "",
+        `• *Layanan Jasa:* ${p.title}`,
+        `• *Kategori:* ${p.category}`,
+        `• *Estimasi Harga:* ${priceText}`,
+        "",
+        "Mohon informasi lebih lanjut terkait detail pengerjaan dan pemesanannya. Terima kasih!"
+      ].join("\n");
+      const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+      window.open(waUrl, "_blank");
+    }
+
     async function startCheckout(productId) {
       try {
         const res = await fetch(`${API_BASE_URL}/api/checkout`, {
