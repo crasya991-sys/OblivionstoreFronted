@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OblivionStore — Toko Pilihan untuk Kebutuhan Game</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            obsidian: {
+              950: '#07080A',
+              900: '#0B0D10',
+              850: '#0F1217',
+              800: '#13161C',
+              700: '#1C212B',
+              600: '#272E3B',
+            },
+            emerald: {
+              400: '#34D399',
+              500: '#10B981',
+              600: '#059669',
+            },
+            amber: {
+              400: '#FBBF24',
+              500: '#F59E0B',
+            }
+          },
+          fontFamily: {
+            display: ['"Space Grotesk"', 'sans-serif'],
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #0B0D10;
+      color: #F3F4F6;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-image: 
+        radial-gradient(circle at 15% 0%, rgba(16, 185, 129, 0.07) 0%, transparent 40%),
+        radial-gradient(circle at 85% 10%, rgba(245, 158, 11, 0.04) 0%, transparent 35%);
+      min-height: 100vh;
+    }
+    .obsidian-grid {
+      background-size: 36px 36px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+    }
+    .card-surface {
+      background: #13161C;
+      border: 1px solid #1C212B;
+      transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+    }
+    .card-surface:hover {
+      border-color: rgba(16, 185, 129, 0.45);
+      transform: translateY(-3px);
+      box-shadow: 0 14px 30px -10px rgba(0, 0, 0, 0.65);
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0B0D10; }
+    ::-webkit-scrollbar-thumb { background: #272E3B; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #10B981; }
+  </style>
+</head>
+<body class="obsidian-grid antialiased selection:bg-emerald-500 selection:text-obsidian-950">
+
+  <!-- =========================================================
+       KONFIGURASI API BACKEND CLOUDFLARE WORKER ANDA
+       ========================================================= -->
+  <script>
+    // Ganti URL di bawah ini jika URL Cloudflare Worker Anda berbeda
+    const API_BASE_URL = "https://oblivionstore.oblivionstore.workers.dev";
+  </script>
+
+  <!-- NAVBAR -->
+  <header class="sticky top-0 z-40 bg-obsidian-900/85 backdrop-blur-md border-b border-obsidian-700">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <a href="#" onclick="switchMainTab('all'); return false;" class="flex items-center gap-3 group">
+        <div class="w-9 h-9 rounded-lg bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-display font-bold text-lg group-hover:bg-emerald-500 group-hover:text-obsidian-950 transition">
+          O
+        </div>
+        <div>
+          <span class="font-display font-bold text-lg tracking-tight text-white block leading-none">OblivionStore</span>
+          <span class="text-[11px] text-gray-400 tracking-wide">Toko pilihan untuk kebutuhan game</span>
+        </div>
+      </a>
+
+      <!-- Desktop Nav -->
+      <nav class="hidden md:flex items-center gap-1 bg-obsidian-800 p-1 rounded-xl border border-obsidian-700">
+        <button onclick="switchMainTab('all')" id="nav-all" class="nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold transition bg-emerald-500 text-obsidian-950">Semua</button>
+        <button onclick="switchMainTab('Jasa')" id="nav-Jasa" class="nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold text-gray-300 hover:text-white transition">Jasa</button>
+        <button onclick="switchMainTab('Minecraft')" id="nav-Minecraft" class="nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold text-gray-300 hover:text-white transition">Minecraft</button>
+        <button onclick="switchMainTab('Portofolio')" id="nav-Portofolio" class="nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold text-gray-300 hover:text-white transition">Portofolio</button>
+        <button onclick="switchMainTab('Testimoni')" id="nav-Testimoni" class="nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold text-gray-300 hover:text-white transition">Testimoni</button>
+      </nav>
+    </div>
+
+    <!-- Mobile Nav -->
+    <div class="md:hidden flex overflow-x-auto gap-1.5 px-4 py-2 border-t border-obsidian-700/70 bg-obsidian-900">
+      <button onclick="switchMainTab('all')" id="mnav-all" class="mnav-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 text-obsidian-950">Semua</button>
+      <button onclick="switchMainTab('Jasa')" id="mnav-Jasa" class="mnav-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-obsidian-800 text-gray-300">Jasa</button>
+      <button onclick="switchMainTab('Minecraft')" id="mnav-Minecraft" class="mnav-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-obsidian-800 text-gray-300">Minecraft</button>
+      <button onclick="switchMainTab('Portofolio')" id="mnav-Portofolio" class="mnav-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-obsidian-800 text-gray-300">Portofolio</button>
+      <button onclick="switchMainTab('Testimoni')" id="mnav-Testimoni" class="mnav-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-obsidian-800 text-gray-300">Testimoni</button>
+    </div>
+  </header>
+
+  <!-- HERO SECTION -->
+  <section id="hero-banner" class="max-w-6xl mx-auto px-4 sm:px-6 pt-10 pb-6">
+    <div class="rounded-2xl bg-obsidian-800 border border-obsidian-700 p-6 sm:p-9 relative overflow-hidden">
+      <div class="max-w-2xl relative z-10">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono mb-4">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          INSTANT QRIS CHECKOUT & AUTO DELIVERY
+        </div>
+        <h1 class="font-display text-3xl sm:text-4xl font-bold text-white tracking-tight leading-tight">
+          OblivionStore — <span class="text-emerald-400">Toko pilihan untuk kebutuhan game</span>
+        </h1>
+        <p class="text-gray-400 text-sm sm:text-base mt-3 leading-relaxed">
+          Solusi lengkap server Minecraft, Plugin kustom, Modpack teroptimasi, Add-on, hingga jasa setup profesional dengan sistem pembayaran otomatis.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN CONTENT AREA -->
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 pb-24">
+
+    <!-- SECTION: KATALOG PRODUK (SEMUA / JASA / MINECRAFT) -->
+    <div id="section-catalog">
+      <!-- Sub-filter khusus Minecraft -->
+      <div id="minecraft-subfilter" class="hidden mb-6 flex flex-wrap items-center gap-2">
+        <span class="text-xs font-mono text-gray-400 mr-1">FILTER MINECRAFT:</span>
+        <button onclick="setMinecraftSub('ALL')" id="sub-ALL" class="sub-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 text-obsidian-950">Semua Minecraft</button>
+        <button onclick="setMinecraftSub('Plugin')" id="sub-Plugin" class="sub-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-obsidian-800 border border-obsidian-700 text-gray-300 hover:border-emerald-500/50">Plugin</button>
+        <button onclick="setMinecraftSub('Modpack')" id="sub-Modpack" class="sub-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-obsidian-800 border border-obsidian-700 text-gray-300 hover:border-emerald-500/50">Modpack</button>
+        <button onclick="setMinecraftSub('Add-on')" id="sub-Add-on" class="sub-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-obsidian-800 border border-obsidian-700 text-gray-300 hover:border-emerald-500/50">Add-on</button>
+      </div>
+
+      <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- SECTION: PORTOFOLIO -->
+    <div id="section-portfolio" class="hidden">
+      <div class="mb-6">
+        <h2 class="font-display text-2xl font-bold text-white">Portofolio Proyek</h2>
+        <p class="text-sm text-gray-400 mt-1">Rekam jejak pengerjaan server, plugin, dan sistem game oleh OblivionStore.</p>
+      </div>
+      <div id="portfolio-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+    </div>
+
+    <!-- SECTION: TESTIMONI -->
+    <div id="section-testimonials" class="hidden">
+      <div class="mb-6">
+        <h2 class="font-display text-2xl font-bold text-white">Testimoni Pelanggan</h2>
+        <p class="text-sm text-gray-400 mt-1">Ulasan asli dari pemilik server dan pemain yang menggunakan layanan kami.</p>
+      </div>
+      <div id="testimonials-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+    </div>
+
+    <!-- SECTION: HALAMAN CHECKOUT QRIS OTOMATIS -->
+    <div id="section-checkout" class="hidden max-w-3xl mx-auto pt-4">
+      <button onclick="closeCheckout()" class="inline-flex items-center gap-2 text-xs font-semibold text-gray-400 hover:text-emerald-400 mb-5 transition">
+        ← Kembali ke Etalase
+      </button>
+
+      <div class="rounded-2xl bg-obsidian-800 border border-obsidian-700 overflow-hidden shadow-2xl">
+        <!-- Header Checkout -->
+        <div class="px-6 py-4 bg-obsidian-850 border-b border-obsidian-700 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <span class="text-[11px] font-mono text-gray-400 block">KODE TRANSAKSI</span>
+            <span id="co-order-code" class="font-mono font-bold text-emerald-400 text-sm">OBV-000000</span>
+          </div>
+          <div class="text-right">
+            <span class="text-[11px] font-mono text-gray-400 block">BATAS WAKTU BAYAR</span>
+            <span id="co-timer" class="font-mono font-bold text-amber-400 text-sm">15:00</span>
+          </div>
+        </div>
+
+        <!-- Body Checkout (State: PENDING) -->
+        <div id="co-pending-view" class="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <!-- Kiri: QRIS -->
+          <div class="flex flex-col items-center text-center bg-obsidian-900 p-5 rounded-xl border border-obsidian-700">
+            <span class="text-xs font-display font-bold tracking-wider uppercase text-white mb-3">Scan QRIS Pembayaran</span>
+            <div class="bg-white p-3 rounded-xl shadow-inner">
+              <img id="co-qris-img" src="" alt="QRIS Code" class="w-48 h-48 object-contain" />
+            </div>
+            <p class="text-[11px] text-gray-400 mt-3">Mendukung DANA, GoPay, OVO, ShopeePay, LinkAja & seluruh M-Banking</p>
+          </div>
+
+          <!-- Kanan: Detail Nominal & Instruksi -->
+          <div>
+            <span id="co-category-badge" class="inline-block px-2.5 py-0.5 rounded text-[11px] font-mono bg-emerald-500/15 text-emerald-400 mb-2">Minecraft • Plugin</span>
+            <h3 id="co-product-title" class="font-display text-xl font-bold text-white">Nama Produk</h3>
+
+            <div class="mt-4 space-y-2 text-sm border-y border-obsidian-700 py-3.5">
+              <div class="flex justify-between text-gray-400">
+                <span>Harga Produk</span>
+                <span id="co-orig-price" class="font-mono">Rp 0</span>
+              </div>
+              <div id="co-discount-row" class="flex justify-between text-emerald-400 hidden">
+                <span>Diskon</span>
+                <span id="co-disc-amount" class="font-mono">-Rp 0</span>
+              </div>
+              <div class="flex justify-between text-amber-400">
+                <span>Kode Unik Verifikasi</span>
+                <span id="co-unique-code" class="font-mono">+Rp 0</span>
+              </div>
+              <div class="flex justify-between items-center pt-2 border-t border-obsidian-700/70">
+                <span class="font-semibold text-white">Total Transfer Tepat</span>
+                <button onclick="copyFinalAmount()" title="Klik untuk salin nominal" class="font-mono text-lg font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/30 hover:bg-emerald-500/20 transition">
+                  <span id="co-final-amount">Rp 0</span> 📋
+                </button>
+              </div>
+            </div>
+
+            <!-- Langkah Pembayaran -->
+            <div class="mt-4">
+              <p class="text-xs font-semibold text-white mb-2">Langkah Pembayaran Otomatis:</p>
+              <ol class="text-xs text-gray-400 space-y-1.5 list-decimal list-inside">
+                <li>Buka aplikasi E-Wallet atau M-Banking Anda lalu pilih menu <strong class="text-gray-200">Scan QRIS</strong>.</li>
+                <li>Masukkan nominal transfer <strong class="text-amber-400">HARUS TEPAT</strong> hingga 3 digit terakhir.</li>
+                <li>Selesaikan pembayaran. Sistem mengecek mutasi otomatis setiap 4 detik.</li>
+              </ol>
+            </div>
+
+            <!-- Indikator Polling -->
+            <div class="mt-5 flex items-center gap-3 p-3 rounded-xl bg-obsidian-900 border border-obsidian-700">
+              <span class="w-3 h-3 rounded-full bg-amber-400 animate-ping shrink-0"></span>
+              <span class="text-xs text-gray-300">Menunggu pembayaran masuk... Jangan tutup halaman ini.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Body Checkout (State: PAID - Centang Hijau & Download) -->
+        <div id="co-paid-view" class="hidden p-8 sm:p-10 text-center">
+          <div class="w-16 h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-500 text-emerald-400 flex items-center justify-center mx-auto mb-4 text-3xl">
+            ✓
+          </div>
+          <h3 class="font-display text-2xl font-bold text-white">Pembayaran Berhasil!</h3>
+          <p class="text-sm text-gray-400 max-w-md mx-auto mt-2">
+            Terima kasih telah berbelanja di <strong class="text-white">OblivionStore</strong>. Transaksi Anda telah terverifikasi otomatis.
+          </p>
+          <div class="mt-6">
+            <a id="co-download-btn" href="#" target="_blank" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-obsidian-950 font-display font-bold text-sm transition shadow-lg shadow-emerald-500/20">
+              ⬇ Download File Sekarang
+            </a>
+          </div>
+          <p class="text-[11px] text-gray-500 font-mono mt-4">Simpan Kode Order Anda jika memerlukan bantuan dukungan teknis.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- =========================================================
+       FLOATING GEAR ICON (POJOK KANAN BAWAH)
+       ========================================================= -->
+  <button onclick="openAdminModal()" title="Admin Panel" aria-label="Admin Settings"
+    class="fixed bottom-5 right-5 z-50 w-12 h-12 rounded-full bg-obsidian-800 hover:bg-emerald-500 text-gray-300 hover:text-obsidian-950 border border-obsidian-600 hover:border-emerald-400 shadow-xl flex items-center justify-center transition-all duration-200 group">
+    <svg class="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+    </svg>
+  </button>
+
+  <!-- =========================================================
+       MODAL ADMIN LOGIN & DASHBOARD OVERLAY
+       ========================================================= -->
+  <div id="admin-overlay" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    
+    <!-- 1. LOGIN CARD -->
+    <div id="admin-login-box" class="w-full max-w-sm rounded-2xl bg-obsidian-800 border border-obsidian-700 p-6 shadow-2xl">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-display font-bold text-lg text-white">Akses Admin Panel</h3>
+        <button onclick="closeAdminModal()" class="text-gray-400 hover:text-white text-lg">✕</button>
+      </div>
+      <p class="text-xs text-gray-400 mb-4">Masukkan kata sandi administrator OblivionStore untuk mengelola katalog, diskon, portofolio, dan testimoni.</p>
+      <form onsubmit="submitAdminLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-gray-300 mb-1">Password Admin</label>
+          <input type="password" id="admin-pass-input" required placeholder="••••••••••••"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-obsidian-900 border border-obsidian-700 text-sm text-white focus:outline-none focus:border-emerald-500" />
+        </div>
+        <p id="admin-login-err" class="text-xs text-red-400 hidden"></p>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-obsidian-950 font-display font-bold text-sm transition">
+          Masuk Dashboard
+        </button>
+      </form>
+    </div>
+
+    <!-- 2. ADMIN DASHBOARD PANEL -->
+    <div id="admin-panel-box" class="hidden w-full max-w-4xl rounded-2xl bg-obsidian-800 border border-obsidian-700 shadow-2xl overflow-hidden my-8">
+      <!-- Top Bar -->
+      <div class="px-6 py-4 bg-obsidian-900 border-b border-obsidian-700 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+          <h3 class="font-display font-bold text-base text-white">OblivionStore — Admin Control</h3>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="logoutAdmin()" class="text-xs text-red-400 hover:underline">Logout</button>
+          <button onclick="closeAdminModal()" class="text-gray-400 hover:text-white text-lg">✕</button>
+        </div>
+      </div>
+
+      <!-- Admin Sub-Tabs -->
+      <div class="flex overflow-x-auto gap-1 px-6 pt-3 bg-obsidian-850 border-b border-obsidian-700">
+        <button onclick="switchAdminTab('products')" id="atab-products" class="atab-btn px-4 py-2 text-xs font-semibold border-b-2 border-emerald-500 text-emerald-400">Produk & Jasa</button>
+        <button onclick="switchAdminTab('discounts')" id="atab-discounts" class="atab-btn px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-gray-400 hover:text-white">Diskon</button>
+        <button onclick="switchAdminTab('portfolio')" id="atab-portfolio" class="atab-btn px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-gray-400 hover:text-white">Portofolio (1x)</button>
+        <button onclick="switchAdminTab('testimonials')" id="atab-testimonials" class="atab-btn px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-gray-400 hover:text-white">Testimoni</button>
+        <button onclick="switchAdminTab('transactions')" id="atab-transactions" class="atab-btn px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-gray-400 hover:text-white">Transaksi QRIS</button>
+      </div>
+
+      <div class="p-6 max-h-[75vh] overflow-y-auto space-y-6">
+
+        <!-- TAB 1: MANAJEMEN PRODUK -->
+        <div id="aview-products" class="space-y-6">
+          <form onsubmit="saveProduct(event)" class="p-4 rounded-xl bg-obsidian-900 border border-obsidian-700 space-y-4">
+            <div class="flex justify-between items-center">
+              <h4 id="prod-form-title" class="font-display font-bold text-sm text-emerald-400">+ Tambah Produk / Jasa Baru</h4>
+              <button type="button" onclick="resetProductForm()" class="text-xs text-gray-400 hover:text-white">Reset Form</button>
+            </div>
+            <input type="hidden" id="pf-id" />
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs text-gray-400 mb-1">Nama Produk / Jasa</label>
+                <input type="text" id="pf-title" required class="w-full px-3 py-2 rounded-lg bg-obsidian-800 border border-obsidian-700 text-xs text-white" />
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-xs text-gray-400 mb-1">Kategori</label>
+                  <select id="pf-category" onchange="toggleSubcatField()" class="w-full px-3 py-2 rounded-lg bg-obsidian-800 border border-obsidian-700 text-xs text-white">
+                    <option value="Jasa">Jasa</option>
+                    <option value="Minecraft">Minecraft</option>
+                  </select>
+                </div>
+                <div id="pf-subcat-wrap" class="hidden">
+                  <label class="block text-xs text-gray-400 mb-1">Sub-Kategori</label>
+                  <select id="pf-subcategory" class="w-full px-3 py-2 rounded-lg bg-obsidian-800 border border-obsidian-700 text-xs text-white">
+                    <option value="Plugin">Plugin</option>
+                    <option value="Modpack">Modpack</option>
+                    <option value="Add-on">Add-on</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs text-gray-400 mb-1">Deskripsi Singkat</label>
+              <textarea id="pf-desc" rows="2" required class="w-full px-3 py-2 rounded-lg bg-obsidian-800 border border-obsidian-700 text-xs text-white"></textarea>
+            </div>
+
+            <!-- Status Harga: Free vs Berbayar -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+              <div>
+                <label class="block text-xs text-gray-400 mb-1">Status Harga</label>
+                <select id="pf-isfree" onchange="togglePaidFields()" class="w-full px-3 py-2 rounded-lg bg-obsidian-800 border border-obsidian-700 text-xs text-white">
+                  <option value="0">Berbayar (QRIS)</option>
+                  <option value="1">Gratis (Free Download)</option>
+                </select>
+              </div>
+              <div id="pf-price-wrap">
+                <label class="block text-xs text-gray-400 mb-1">Harga (Rp)</label>
+                <input type="number" id="pf-price" value="25000" min="0" class="w-full px-3 py-2 rounded-lg bg-obsidian-800 border border-obsidian-700 text-xs text-white font-mono" />
+              </div>
+              <div id="pf-qris-wrap">
+                <label class="block text-xs text-gray-400 mb-1">URL Gambar QRIS Khusus (Opsional)</label>
+                <input type="url" id="pf-qris" placeholder="Kosongkan untuk QRIS default" class="w-full px-3 py-2 rounded-lg bg-obsidian-800 border border-obsidian-700 text-xs text-white" />
+              </div>
+            </div>
+
+            <!-- Upload / URL Thumbnail & File -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs text-gray-400 mb-1">URL Gambar Thumbnail (atau Upload R2)</label>
+                <div class="flex gap-2">
+                  <input type="text" id="pf-thumb" placeholder="https://..." class="w-full px-3 py-2 rounded-lg bg-obsidian-800 border border-obsidian-700 text-xs text-white" />
+                  <label class="shrink-0 px-3 py-2 rounded-lg bg-obsidian-700 hover:bg-obsidian-600 text-xs text-white cursor-pointer">
+                    Upload <input type="file" accept="image/*" class="hidden" onchange="uploadAssetToR2(this, 'thumbnails', 'pf-thumb')" />
+                  </label>
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs text-gray-400 mb-1">Link Download File / Upload File (.jar/.zip)</label>
+                <div class="flex gap-2">
+                  <input type="text" id="pf-fileurl" placeholder="https://... atau upload file" class="w-full px-3 py-2 rounded-lg bg-obsidian-800 border border-obsidian-700 text-xs text-white" />
+                  <label class="shrink-0 px-3 py-2 rounded-lg bg-obsidian-700 hover:bg-obsidian-600 text-xs text-white cursor-pointer">
+                    File <input type="file" class="hidden" onchange="uploadProductFileToR2(this)" />
+                  </label>
+                </div>
+                <input type="hidden" id="pf-filekey" />
+                <input type="hidden" id="pf-filename" />
+              </div>
+            </div>
+
+            <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-obsidian-950 font-display font-bold text-xs">
+              Simpan Produk
+            </button>
+          </form>
+
+          <div id="admin-products-list" class="space-y-2"></div>
+        </div>
+
+        <!-- TAB 2: MANAJEMEN DISKON -->
+        <div id="aview-discounts" class="hidden space-y-6">
+          <form onsubmit="saveDiscount(event)" class="p-4 rounded-xl bg-obsidian-900 border border-obsidian-700 space-y-4">
+            <h4 class="font-display font-bold text-sm text-emerald-400">+ Buat Promo Diskon</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs text-gray-400 mb-1">Nama Promo</label>
+                <input type="text" id="df-name" placeholder="Promo Opening Server" required class="w-full px-3 py-2 rounded-lg bg-obsidian-800 border border-obsidian-700 text-xs text-white" />
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-xs text-gray-400 mb-1">Tipe</label>
+                  <select id="df-type" class="w-full px-3 py-2 rounded-lg bg-obsidian-800 border border-obsidian-700 text-xs text-white">
+                    <option value="percentage">Persentase (%)</option>
+                    <option value="fixed">Nominal (Rp)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs text-gray-400 mb-1">Nilai</label>
+                  <input type="number" id="df-val" placeholder="20" required min="1" class="w-full px-3 py-2 rounded-lg bg-obsidian-800 border border-obsidian-700 text-xs text-white font-mono" />
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs text-gray-400 mb-1">Target Penerapan</label>
+                <select id="df-scope" onchange="toggleDiscountProduct()" class="w-full px-3 py-2 rounded-lg bg-obsidian-800 border border-obsidian-700 text-xs text-white">
+                  <option value="global">Semua Produk (Global)</option>
+                  <option value="product">Hanya Produk Tertentu</option>
+                </select>
+              </div>
+              <div id="df-prod-wrap" class="hidden">
+                <label class="block text-xs text-gray-400 mb-1">Pilih Produk</label>
+                <select id="df-product" class="w-full px-3 py-2 rounded-lg bg-obsidian-800 border border-obsidian-700 text-xs text-white"></select>
+              </div>
+            </div>
+
+            <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-obsidian-950 font-display font-bold text-xs">
+              Aktifkan Diskon
+            </button>
+          </form>
+
+          <div id="admin-discounts-list" class="space-y-2"></div>
+        </div>
+
+        <!-- TAB 3: MANAJEMEN PORTOFOLIO (HANYA BISA TAMBAH 1X, EDIT KAPAN SAJA) -->
+        <div id="aview-portfolio" class="hidden space-y-4">
+          <div id="portfolio-lock-banner" class="hidden p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs">
+            Penambahan portofolio hanya diperbolehkan <strong>1 kali</strong>. Anda tetap dapat mengedit data portofolio yang sudah ada di bawah ini.
+          </div>
+          <form onsubmit="savePortfolio(event)" class="p-4 rounded-xl bg-obsidian-900 border border-obsidian-700 space-y-4">
+            <h4 id="port-form-title" class="font-display font-bold text-sm text-emerald-400">Data Portofolio Utama</h4>
+            <input type="hidden" id="port-id" />
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs text-gray-400 mb-1">Judul Proyek</label>
+                <input type="text" id="port-title" required class="w-full px-3 py-2 rounded-lg bg-obsidian-800 border border-obsidian-700 text-xs text-white" />
+              </div>
+              <div>
+                <label class="block text-xs text-gray-400 mb-1">Kategori Karya</label>
+                <input type="text" id="port-cat" placeholder="Contoh: Network Server / Custom Plugin" required class="w-full px-3 py-2 rounded-lg bg-obsidian-800 border border-obsidian-700 text-xs text-white" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-400 mb-1">Deskripsi Lengkap</label>
+              <textarea id="port-desc" rows="3" required class="w-full px-3 py-2 rounded-lg bg-obsidian-800 border border-obsidian-700 text-xs text-white"></textarea>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs text-gray-400 mb-1">URL Gambar / Upload</label>
+                <div class="flex gap-2">
+                  <input type="text" id="port-img" placeholder="https://..." class="w-full px-3 py-2 rounded-lg bg-obsidian-800 border border-obsidian-700 text-xs text-white" />
+                  <label class="shrink-0 px-3 py-2 rounded-lg bg-obsidian-700 text-xs text-white cursor-pointer">
+                    Upload <input type="file" accept="image/*" class="hidden" onchange="uploadAssetToR2(this, 'portfolio', 'port-img')" />
+                  </label>
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs text-gray-400 mb-1">Link Preview / Server IP (Opsional)</label>
+                <input type="text" id="port-url" placeholder="play.servermc.id" class="w-full px-3 py-2 rounded-lg bg-obsidian-800 border border-obsidian-700 text-xs text-white" />
+              </div>
+            </div>
+            <button type="submit" id="port-submit-btn" class="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-obsidian-950 font-display font-bold text-xs">
+              Simpan Portofolio
+            </button>
+          </form>
+        </div>
+
+        <!-- TAB 4: MANAJEMEN TESTIMONI -->
+        <div id="aview-testimonials" class="hidden space-y-6">
+          <form onsubmit="saveTestimonial(event)" class="p-4 rounded-xl bg-obsidian-900 border border-obsidian-700 space-y-4">
+            <h4 class="font-display font-bold text-sm text-emerald-400">+ Tambah / Edit Testimoni</h4>
+            <input type="hidden" id="tf-id" />
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label class="block text-xs text-gray-400 mb-1">Nama Pembeli</label>
+                <input type="text" id="tf-name" required class="w-full px-3 py-2 rounded-lg bg-obsidian-800 border border-obsidian-700 text-xs text-white" />
+              </div>
+              <div>
+                <label class="block text-xs text-gray-400 mb-1">Role / Server</label>
+                <input type="text" id="tf-role" placeholder="Owner ServerMC" class="w-full px-3 py-2 rounded-lg bg-obsidian-800 border border-obsidian-700 text-xs text-white" />
+              </div>
+              <div>
+                <label class="block text-xs text-gray-400 mb-1">URL Foto / Upload Bukti</label>
+                <div class="flex gap-2">
+                  <input type="text" id="tf-photo" placeholder="https://..." class="w-full px-3 py-2 rounded-lg bg-obsidian-800 border border-obsidian-700 text-xs text-white" />
+                  <label class="shrink-0 px-3 py-2 rounded-lg bg-obsidian-700 text-xs text-white cursor-pointer">
+                    Upload <input type="file" accept="image/*" class="hidden" onchange="uploadAssetToR2(this, 'testimonials', 'tf-photo')" />
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-400 mb-1">Isi Ulasan</label>
+              <textarea id="tf-desc" rows="2" required class="w-full px-3 py-2 rounded-lg bg-obsidian-800 border border-obsidian-700 text-xs text-white"></textarea>
+            </div>
+            <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-obsidian-950 font-display font-bold text-xs">
+              Simpan Testimoni
+            </button>
+          </form>
+          <div id="admin-testimonials-list" class="space-y-2"></div>
+        </div>
+
+        <!-- TAB 5: TRANSAKSI & KONFIRMASI MANUAL FALLBACK -->
+        <div id="aview-transactions" class="hidden space-y-4">
+          <div class="p-3 rounded-xl bg-obsidian-900 border border-obsidian-700 text-xs text-gray-400">
+            <strong class="text-white">Endpoint Webhook Otomatis (Saweria / SociaBuzz / Trakteer / MacroDroid):</strong><br/>
+            <code class="text-emerald-400 select-all" id="webhook-url-display"></code>
+          </div>
+          <div id="admin-tx-list" class="space-y-2"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       APPLICATION LOGIC
+       ========================================================= -->
+  <script>
+    let allProducts = [];
+    let currentMainTab = 'all';
+    let currentSubcat = 'ALL';
+    let checkoutPollInterval = null;
+    let checkoutTimerInterval = null;
+    let activeCheckoutData = null;
+
+    const rupiah = (n) => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('webhook-url-display').textContent = `${API_BASE_URL}/api/webhook/payment`;
+      loadStoreData();
+    });
+
+    async function loadStoreData() {
+      try {
+        const [prodRes, portRes, testiRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/api/products`).then(r => r.json()),
+          fetch(`${API_BASE_URL}/api/portfolio`).then(r => r.json()),
+          fetch(`${API_BASE_URL}/api/testimonials`).then(r => r.json())
+        ]);
+
+        allProducts = prodRes.products || [];
+        renderProducts();
+        renderPortfolio(portRes.portfolio || []);
+        renderTestimonials(testiRes.testimonials || []);
+      } catch (err) {
+        console.error(err);
+        document.getElementById('products-grid').innerHTML = `
+          <div class="col-span-full p-6 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-sm">
+            Gagal terhubung ke Backend API (${API_BASE_URL}). Pastikan Worker aktif dan schema.sql sudah dijalankan di D1.
+          </div>`;
+      }
+    }
+
+    function switchMainTab(tab) {
+      currentMainTab = tab;
+      closeCheckout(false);
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.className = 'nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold text-gray-300 hover:text-white transition';
+      });
+      document.querySelectorAll('.mnav-btn').forEach(btn => {
+        btn.className = 'mnav-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-obsidian-800 text-gray-300';
+      });
+
+      const activeDesk = document.getElementById(`nav-${tab}`);
+      const activeMob = document.getElementById(`mnav-${tab}`);
+      if (activeDesk) activeDesk.className = 'nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold transition bg-emerald-500 text-obsidian-950';
+      if (activeMob) activeMob.className = 'mnav-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 text-obsidian-950';
+
+      document.getElementById('section-catalog').classList.add('hidden');
+      document.getElementById('section-portfolio').classList.add('hidden');
+      document.getElementById('section-testimonials').classList.add('hidden');
+      document.getElementById('minecraft-subfilter').classList.add('hidden');
+
+      if (tab === 'Portofolio') {
+        document.getElementById('section-portfolio').classList.remove('hidden');
+      } else if (tab === 'Testimoni') {
+        document.getElementById('section-testimonials').classList.remove('hidden');
+      } else {
+        document.getElementById('section-catalog').classList.remove('hidden');
+        if (tab === 'Minecraft') {
+          document.getElementById('minecraft-subfilter').classList.remove('hidden');
+        }
+        renderProducts();
+      }
+    }
+
+    function setMinecraftSub(sub) {
+      currentSubcat = sub;
+      document.querySelectorAll('.sub-btn').forEach(b => {
+        b.className = 'sub-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-obsidian-800 border border-obsidian-700 text-gray-300 hover:border-emerald-500/50';
+      });
+      const active = document.getElementById(`sub-${sub}`);
+      if (active) active.className = 'sub-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 text-obsidian-950';
+      renderProducts();
+    }
+
+    function renderProducts() {
+      const grid = document.getElementById('products-grid');
+      let filtered = allProducts;
+
+      if (currentMainTab === 'Jasa') {
+        filtered = allProducts.filter(p => p.category === 'Jasa');
+      } else if (currentMainTab === 'Minecraft') {
+        filtered = allProducts.filter(p => p.category === 'Minecraft');
+        if (currentSubcat !== 'ALL') {
+          filtered = filtered.filter(p => p.subcategory === currentSubcat);
+        }
+      }
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-500 text-sm">Belum ada produk pada kategori ini.</div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(p => {
+        const catLabel = p.category === 'Minecraft' && p.subcategory ? `Minecraft • ${p.subcategory}` : p.category;
+        const thumb = p.thumbnail_url || 'https://images.unsplash.com/photo-1614680376593-902f74cf0d41?auto=format&fit=crop&w=800&q=80';
+
+        let priceHtml = '';
+        if (p.is_free) {
+          priceHtml = `<span class="font-mono font-bold text-base text-emerald-400">GRATIS</span>`;
+        } else if (p.discount_badge) {
+          priceHtml = `
+            <div class="flex flex-col">
+              <span class="font-mono text-[11px] text-gray-500 line-through">${rupiah(p.original_price)}</span>
+              <span class="font-mono font-bold text-base text-emerald-400">${rupiah(p.final_price)}</span>
+            </div>`;
+        } else {
+          priceHtml = `<span class="font-mono font-bold text-base text-white">${rupiah(p.final_price)}</span>`;
+        }
+
+        const btnHtml = p.is_free
+          ? `<a href="${API_BASE_URL}/api/free-download/${p.id}" target="_blank" class="px-4 py-2 rounded-xl bg-obsidian-700 hover:bg-emerald-500 text-white hover:text-obsidian-950 font-display font-bold text-xs transition">Download</a>`
+          : `<button onclick="startCheckout('${p.id}')" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-obsidian-950 font-display font-bold text-xs transition">Beli Sekarang</button>`;
+
+        return `
+          <article class="card-surface rounded-2xl overflow-hidden flex flex-col justify-between">
+            <div>
+              <div class="relative h-44 bg-obsidian-900 overflow-hidden">
+                <img src="${thumb}" alt="${p.title}" class="w-full h-full object-cover opacity-90" />
+                <div class="absolute top-3 left-3 flex gap-1.5">
+                  <span class="px-2.5 py-1 rounded-md bg-obsidian-950/85 backdrop-blur text-[11px] font-mono text-gray-200 border border-obsidian-700">${catLabel}</span>
+                  ${p.discount_badge ? `<span class="px-2 py-1 rounded-md bg-amber-500 text-obsidian-950 font-mono font-bold text-[11px]">${p.discount_badge}</span>` : ''}
+                </div>
+              </div>
+              <div class="p-5">
+                <h3 class="font-display font-bold text-base text-white leading-snug">${p.title}</h3>
+                <p class="text-xs text-gray-400 mt-2 line-clamp-3 leading-relaxed">${p.description}</p>
+              </div>
+            </div>
+            <div class="px-5 py-4 border-t border-obsidian-700/70 flex items-center justify-between bg-obsidian-850/60">
+              ${priceHtml}
+              ${btnHtml}
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function renderPortfolio(items) {
+      const box = document.getElementById('portfolio-container');
+      if (!items.length) {
+        box.innerHTML = `<div class="col-span-full text-center py-12 text-gray-500 text-sm">Portofolio belum ditambahkan oleh admin.</div>`;
+        return;
+      }
+      box.innerHTML = items.map(item => `
+        <div class="card-surface rounded-2xl overflow-hidden md:col-span-2 grid grid-cols-1 md:grid-cols-2">
+          <div class="h-64 md:h-auto bg-obsidian-900">
+            <img src="${item.image_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=900&q=80'}" alt="${item.title}" class="w-full h-full object-cover" />
+          </div>
+          <div class="p-6 sm:p-8 flex flex-col justify-center">
+            <span class="inline-block w-fit px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-400 font-mono text-xs mb-3">${item.category}</span>
+            <h3 class="font-display text-2xl font-bold text-white">${item.title}</h3>
+            <p class="text-sm text-gray-400 mt-3 leading-relaxed">${item.description}</p>
+            ${item.project_url ? `<div class="mt-4 font-mono text-xs text-amber-400">Server / Link: ${item.project_url}</div>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderTestimonials(items) {
+      const grid = document.getElementById('testimonials-grid');
+      if (!items.length) {
+        grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-500 text-sm">Belum ada testimoni.</div>`;
+        return;
+      }
+      grid.innerHTML = items.map(t => `
+        <div class="card-surface rounded-2xl p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-1 text-amber-400 text-xs mb-3">${'★'.repeat(t.rating || 5)}</div>
+            <p class="text-xs sm:text-sm text-gray-300 leading-relaxed">"${t.description}"</p>
+          </div>
+          <div class="flex items-center gap-3 mt-5 pt-4 border-t border-obsidian-700/70">
+            <img src="${t.photo_url || 'https://ui-avatars.com/api/?background=10B981&color=0B0D10&name=' + encodeURIComponent(t.customer_name)}" alt="${t.customer_name}" class="w-10 h-10 rounded-full object-cover border border-obsidian-600" />
+            <div>
+              <div class="font-display font-bold text-xs text-white">${t.customer_name}</div>
+              <div class="text-[11px] text-gray-400">${t.customer_role || 'Pembeli'}</div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // =========================================================
+    // CHECKOUT QRIS & POLLING STATUS
+    // =========================================================
+    async function startCheckout(productId) {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/checkout`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ product_id: productId })
+        });
+        const data = await res.json();
+        if (!data.transaction) {
+          alert(data.error || 'Gagal membuat sesi checkout.');
+          return;
+        }
+
+        activeCheckoutData = data.transaction;
+        showCheckoutView(activeCheckoutData);
+      } catch (e) {
+        alert('Gagal menghubungi server pembayaran.');
+      }
+    }
+
+    function showCheckoutView(tx) {
+      document.getElementById('hero-banner').classList.add('hidden');
+      document.getElementById('section-catalog').classList.add('hidden');
+      document.getElementById('section-portfolio').classList.add('hidden');
+      document.getElementById('section-testimonials').classList.add('hidden');
+      document.getElementById('section-checkout').classList.remove('hidden');
+
+      document.getElementById('co-pending-view').classList.remove('hidden');
+      document.getElementById('co-paid-view').classList.add('hidden');
+
+      document.getElementById('co-order-code').textContent = tx.order_code;
+      document.getElementById('co-qris-img').src = tx.qris_image_url;
+      document.getElementById('co-category-badge').textContent = tx.product_subcategory
+        ? `${tx.product_category} • ${tx.product_subcategory}`
+        : tx.product_category;
+      document.getElementById('co-product-title').textContent = tx.product_title;
+      document.getElementById('co-orig-price').textContent = rupiah(tx.original_price);
+
+      if (tx.discount_amount > 0) {
+        document.getElementById('co-discount-row').classList.remove('hidden');
+        document.getElementById('co-disc-amount').textContent = '-' + rupiah(tx.discount_amount);
+      } else {
+        document.getElementById('co-discount-row').classList.add('hidden');
+      }
+
+      document.getElementById('co-unique-code').textContent = '+' + rupiah(tx.unique_code);
+      document.getElementById('co-final-amount').textContent = rupiah(tx.final_amount);
+
+      startTimersAndPolling(tx.order_code, tx.expires_at);
+    }
+
+    function startTimersAndPolling(orderCode, expiresAt) {
+      clearInterval(checkoutTimerInterval);
+      clearInterval(checkoutPollInterval);
+
+      checkoutTimerInterval = setInterval(() => {
+        const diff = Math.max(0, expiresAt - Date.now());
+        const m = String(Math.floor(diff / 60000)).padStart(2, '0');
+        const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+        document.getElementById('co-timer').textContent = `${m}:${s}`;
+        if (diff <= 0) {
+          clearInterval(checkoutTimerInterval);
+          clearInterval(checkoutPollInterval);
+          document.getElementById('co-timer').textContent = 'KADALUARSA';
+        }
+      }, 1000);
+
+      // Polling setiap 4 detik mengecek apakah QRIS sudah dibayar
+      checkoutPollInterval = setInterval(async () => {
+        try {
+          const res = await fetch(`${API_BASE_URL}/api/transactions/${orderCode}`);
+          const data = await res.json();
+          if (data.transaction && data.transaction.status === 'PAID') {
+            clearInterval(checkoutTimerInterval);
+            clearInterval(checkoutPollInterval);
+            document.getElementById('co-pending-view').classList.add('hidden');
+            document.getElementById('co-paid-view').classList.remove('hidden');
+            document.getElementById('co-download-btn').href = `${API_BASE_URL}/api/download/${data.transaction.download_token}`;
+          }
+        } catch {}
+      }, 4000);
+    }
+
+    function copyFinalAmount() {
+      if (!activeCheckoutData) return;
+      navigator.clipboard.writeText(String(activeCheckoutData.final_amount));
+      alert(`Nominal ${activeCheckoutData.final_amount} berhasil disalin!`);
+    }
+
+    function closeCheckout(restoreHome = true) {
+      clearInterval(checkoutTimerInterval);
+      clearInterval(checkoutPollInterval);
+      document.getElementById('section-checkout').classList.add('hidden');
+      document.getElementById('hero-banner').classList.remove('hidden');
+      if (restoreHome) {
+        document.getElementById('section-catalog').classList.remove('hidden');
+      }
+    }
+
+    // =========================================================
+    // ADMIN PANEL LOGIC
+    // =========================================================
+    function getAdminToken() {
+      return sessionStorage.getItem('obv_admin_token') || '';
+    }
+
+    function openAdminModal() {
+      document.getElementById('admin-overlay').classList.remove('hidden');
+      if (getAdminToken()) {
+        document.getElementById('admin-login-box').classList.add('hidden');
+        document.getElementById('admin-panel-box').classList.remove('hidden');
+        loadAdminData();
+      } else {
+        document.getElementById('admin-login-box').classList.remove('hidden');
+        document.getElementById('admin-panel-box').classList.add('hidden');
+      }
+    }
+
+    function closeAdminModal() {
+      document.getElementById('admin-overlay').classList.add('hidden');
+    }
+
+    function logoutAdmin() {
+      sessionStorage.removeItem('obv_admin_token');
+      closeAdminModal();
+    }
+
+    async function submitAdminLogin(e) {
+      e.preventDefault();
+      const pass = document.getElementById('admin-pass-input').value;
+      const errEl = document.getElementById('admin-login-err');
+      errEl.classList.add('hidden');
+
+      const res = await fetch(`${API_BASE_URL}/api/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pass })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        sessionStorage.setItem('obv_admin_token', data.token);
+        document.getElementById('admin-pass-input').value = '';
+        openAdminModal();
+      } else {
+        errEl.textContent = data.error || 'Password salah.';
+        errEl.classList.remove('hidden');
+      }
+    }
+
+    function switchAdminTab(tab) {
+      ['products', 'discounts', 'portfolio', 'testimonials', 'transactions'].forEach(t => {
+        document.getElementById(`aview-${t}`).classList.add('hidden');
+        document.getElementById(`atab-${t}`).className = 'atab-btn px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-gray-400 hover:text-white';
+      });
+      document.getElementById(`aview-${tab}`).classList.remove('hidden');
+      document.getElementById(`atab-${tab}`).className = 'atab-btn px-4 py-2 text-xs font-semibold border-b-2 border-emerald-500 text-emerald-400';
+    }
+
+    function toggleSubcatField() {
+      const cat = document.getElementById('pf-category').value;
+      document.getElementById('pf-subcat-wrap').classList.toggle('hidden', cat !== 'Minecraft');
+    }
+
+    function togglePaidFields() {
+      const isFree = document.getElementById('pf-isfree').value === '1';
+      document.getElementById('pf-price-wrap').classList.toggle('hidden', isFree);
+      document.getElementById('pf-qris-wrap').classList.toggle('hidden', isFree);
+    }
+
+    function toggleDiscountProduct() {
+      const scope = document.getElementById('df-scope').value;
+      document.getElementById('df-prod-wrap').classList.toggle('hidden', scope !== 'product');
+    }
+
+    async function adminFetch(endpoint, options = {}) {
+      const headers = { ...(options.headers || {}), Authorization: `Bearer ${getAdminToken()}` };
+      return fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
+    }
+
+    async function loadAdminData() {
+      const [pRes, dRes, portRes, tRes, txRes] = await Promise.all([
+        adminFetch('/api/admin/products').then(r => r.json()),
+        adminFetch('/api/admin/discounts').then(r => r.json()),
+        fetch(`${API_BASE_URL}/api/portfolio`).then(r => r.json()),
+        fetch(`${API_BASE_URL}/api/testimonials`).then(r => r.json()),
+        adminFetch('/api/admin/transactions').then(r => r.json()),
+      ]);
+
+      // 1. Admin Products List & Discount Selector
+      const prods = pRes.products || [];
+      document.getElementById('df-product').innerHTML = prods.map(p => `<option value="${p.id}">${p.title}</option>`).join('');
+      document.getElementById('admin-products-list').innerHTML = prods.map(p => `
+        <div class="flex items-center justify-between p-3 rounded-xl bg-obsidian-900 border border-obsidian-700 text-xs">
+          <div>
+            <strong class="text-white">${p.title}</strong>
+            <span class="text-gray-400 ml-2">(${p.category}${p.subcategory ? ' - ' + p.subcategory : ''})</span>
+            <div class="font-mono text-emerald-400 mt-0.5">${p.is_free ? 'GRATIS' : rupiah(p.price)}</div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick='editProduct(${JSON.stringify(p).replace(/'/g, "&#39;")})' class="px-2.5 py-1 rounded bg-obsidian-700 text-white">Edit</button>
+            <button onclick="deleteProduct('${p.id}')" class="px-2.5 py-1 rounded bg-red-500/20 text-red-400">Hapus</button>
+          </div>
+        </div>
+      `).join('');
+
+      // 2. Discounts List
+      document.getElementById('admin-discounts-list').innerHTML = (dRes.discounts || []).map(d => `
+        <div class="flex items-center justify-between p-3 rounded-xl bg-obsidian-900 border border-obsidian-700 text-xs">
+          <div>
+            <strong class="text-white">${d.name}</strong> —
+            <span class="font-mono text-amber-400">${d.discount_type === 'percentage' ? d.discount_value + '%' : rupiah(d.discount_value)}</span>
+            <span class="text-gray-400 ml-1">(${d.scope === 'global' ? 'Semua Produk' : 'Produk Tertentu'})</span>
+          </div>
+          <button onclick="deleteDiscount('${d.id}')" class="px-2.5 py-1 rounded bg-red-500/20 text-red-400">Hapus</button>
+        </div>
+      `).join('');
+
+      // 3. Portfolio (1x Create Lock, Unlimited Edit)
+      const portList = portRes.portfolio || [];
+      if (portList.length > 0) {
+        const p = portList[0];
+        document.getElementById('portfolio-lock-banner').classList.remove('hidden');
+        document.getElementById('port-form-title').textContent = 'Edit Portofolio Utama (Penambahan Baru Dikunci)';
+        document.getElementById('port-id').value = p.id;
+        document.getElementById('port-title').value = p.title;
+        document.getElementById('port-cat').value = p.category;
+        document.getElementById('port-desc').value = p.description;
+        document.getElementById('port-img').value = p.image_url || '';
+        document.getElementById('port-url').value = p.project_url || '';
+        document.getElementById('port-submit-btn').textContent = 'Simpan Perubahan Portofolio';
+      }
+
+      // 4. Testimonials
+      document.getElementById('admin-testimonials-list').innerHTML = (tRes.testimonials || []).map(t => `
+        <div class="flex items-center justify-between p-3 rounded-xl bg-obsidian-900 border border-obsidian-700 text-xs">
+          <div>
+            <strong class="text-white">${t.customer_name}</strong> <span class="text-gray-400">(${t.customer_role || ''})</span>
+            <p class="text-gray-400 mt-0.5 line-clamp-1">${t.description}</p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick='editTestimonial(${JSON.stringify(t).replace(/'/g, "&#39;")})' class="px-2.5 py-1 rounded bg-obsidian-700 text-white">Edit</button>
+            <button onclick="deleteTestimonial('${t.id}')" class="px-2.5 py-1 rounded bg-red-500/20 text-red-400">Hapus</button>
+          </div>
+        </div>
+      `).join('');
+
+      // 5. Transactions
+      document.getElementById('admin-tx-list').innerHTML = (txRes.transactions || []).map(tx => `
+        <div class="flex flex-wrap items-center justify-between gap-2 p-3 rounded-xl bg-obsidian-900 border border-obsidian-700 text-xs">
+          <div>
+            <span class="font-mono font-bold text-white">${tx.order_code}</span> — ${tx.product_title || 'Produk'}
+            <div class="font-mono text-emerald-400">${rupiah(tx.final_amount)} <span class="text-gray-400">(${tx.status})</span></div>
+          </div>
+          ${tx.status === 'PENDING'
+            ? `<button onclick="confirmTxManual('${tx.order_code}')" class="px-3 py-1.5 rounded-lg bg-emerald-500 text-obsidian-950 font-bold">Konfirmasi Lunas</button>`
+            : `<span class="px-2.5 py-1 rounded bg-obsidian-800 text-gray-400 font-mono">${tx.status}</span>`}
+        </div>
+      `).join('');
+    }
+
+    // Upload R2 Helpers
+    async function uploadAssetToR2(input, folder, targetInputId) {
+      if (!input.files[0]) return;
+      const fd = new FormData();
+      fd.append('file', input.files[0]);
+      fd.append('folder', folder);
+
+      const res = await adminFetch('/api/admin/upload', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById(targetInputId).value = data.url;
+        alert('Gambar berhasil diunggah ke R2!');
+      } else {
+        alert(data.error || 'Upload gagal.');
+      }
+    }
+
+    async function uploadProductFileToR2(input) {
+      if (!input.files[0]) return;
+      const fd = new FormData();
+      fd.append('file', input.files[0]);
+      fd.append('folder', 'products');
+
+      const res = await adminFetch('/api/admin/upload', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('pf-filekey').value = data.key;
+        document.getElementById('pf-filename').value = data.file_name;
+        document.getElementById('pf-fileurl').value = `[R2 File] ${data.file_name}`;
+        alert('File produk berhasil diunggah ke R2!');
+      } else {
+        alert(data.error || 'Upload gagal.');
+      }
+    }
+
+    // CRUD Handlers
+    function editProduct(p) {
+      document.getElementById('prod-form-title').textContent = 'Edit Produk';
+      document.getElementById('pf-id').value = p.id;
+      document.getElementById('pf-title').value = p.title;
+      document.getElementById('pf-category').value = p.category;
+      toggleSubcatField();
+      if (p.subcategory) document.getElementById('pf-subcategory').value = p.subcategory;
+      document.getElementById('pf-desc').value = p.description;
+      document.getElementById('pf-isfree').value = p.is_free ? '1' : '0';
+      togglePaidFields();
+      document.getElementById('pf-price').value = p.price;
+      document.getElementById('pf-qris').value = p.qris_image_url || '';
+      document.getElementById('pf-thumb').value = p.thumbnail_url || '';
+      document.getElementById('pf-fileurl').value = p.file_url_fallback || '';
+      document.getElementById('pf-filekey').value = p.file_key || '';
+      document.getElementById('pf-filename').value = p.file_name || '';
+    }
+
+    function resetProductForm() {
+      document.getElementById('prod-form-title').textContent = '+ Tambah Produk / Jasa Baru';
+      document.getElementById('pf-id').value = '';
+      document.getElementById('pf-title').value = '';
+      document.getElementById('pf-desc').value = '';
+      document.getElementById('pf-thumb').value = '';
+      document.getElementById('pf-fileurl').value = '';
+      document.getElementById('pf-filekey').value = '';
+      document.getElementById('pf-filename').value = '';
+    }
+
+    async function saveProduct(e) {
+      e.preventDefault();
+      const id = document.getElementById('pf-id').value;
+      const fileUrlRaw = document.getElementById('pf-fileurl').value;
+      const payload = {
+        title: document.getElementById('pf-title').value,
+        category: document.getElementById('pf-category').value,
+        subcategory: document.getElementById('pf-subcategory').value,
+        description: document.getElementById('pf-desc').value,
+        is_free: document.getElementById('pf-isfree').value === '1',
+        price: Number(document.getElementById('pf-price').value),
+        qris_image_url: document.getElementById('pf-qris').value,
+        thumbnail_url: document.getElementById('pf-thumb').value,
+        file_key: document.getElementById('pf-filekey').value,
+        file_name: document.getElementById('pf-filename').value,
+        file_url_fallback: fileUrlRaw.startsWith('[R2 File]') ? '' : fileUrlRaw,
+      };
+
+      const url = id ? `/api/admin/products/${id}` : '/api/admin/products';
+      const method = id ? 'PUT' : 'POST';
+
+      await adminFetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      resetProductForm();
+      await loadAdminData();
+      await loadStoreData();
+    }
+
+    async function deleteProduct(id) {
+      if (!confirm('Hapus produk ini?')) return;
+      await adminFetch(`/api/admin/products/${id}`, { method: 'DELETE' });
+      await loadAdminData();
+      await loadStoreData();
+    }
+
+    async function saveDiscount(e) {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById('df-name').value,
+        discount_type: document.getElementById('df-type').value,
+        discount_value: Number(document.getElementById('df-val').value),
+        scope: document.getElementById('df-scope').value,
+        product_id: document.getElementById('df-product').value,
+      };
+      await adminFetch('/api/admin/discounts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      document.getElementById('df-name').value = '';
+      await loadAdminData();
+      await loadStoreData();
+    }
+
+    async function deleteDiscount(id) {
+      await adminFetch(`/api/admin/discounts/${id}`, { method: 'DELETE' });
+      await loadAdminData();
+      await loadStoreData();
+    }
+
+    async function savePortfolio(e) {
+      e.preventDefault();
+      const id = document.getElementById('port-id').value;
+      const payload = {
+        title: document.getElementById('port-title').value,
+        category: document.getElementById('port-cat').value,
+        description: document.getElementById('port-desc').value,
+        image_url: document.getElementById('port-img').value,
+        project_url: document.getElementById('port-url').value,
+      };
+      const url = id ? `/api/admin/portfolio/${id}` : '/api/admin/portfolio';
+      const method = id ? 'PUT' : 'POST';
+
+      const res = await adminFetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!data.success) {
+        alert(data.error || 'Gagal menyimpan portofolio.');
+        return;
+      }
+      alert('Portofolio berhasil disimpan!');
+      await loadAdminData();
+      await loadStoreData();
+    }
+
+    function editTestimonial(t) {
+      document.getElementById('tf-id').value = t.id;
+      document.getElementById('tf-name').value = t.customer_name;
+      document.getElementById('tf-role').value = t.customer_role || '';
+      document.getElementById('tf-photo').value = t.photo_url || '';
+      document.getElementById('tf-desc').value = t.description;
+    }
+
+    async function saveTestimonial(e) {
+      e.preventDefault();
+      const id = document.getElementById('tf-id').value;
+      const payload = {
+        customer_name: document.getElementById('tf-name').value,
+        customer_role: document.getElementById('tf-role').value,
+        photo_url: document.getElementById('tf-photo').value,
+        description: document.getElementById('tf-desc').value,
+      };
+      const url = id ? `/api/admin/testimonials/${id}` : '/api/admin/testimonials';
+      const method = id ? 'PUT' : 'POST';
+
+      await adminFetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      document.getElementById('tf-id').value = '';
+      document.getElementById('tf-name').value = '';
+      document.getElementById('tf-role').value = '';
+      document.getElementById('tf-photo').value = '';
+      document.getElementById('tf-desc').value = '';
+      await loadAdminData();
+      await loadStoreData();
+    }
+
+    async function deleteTestimonial(id) {
+      if (!confirm('Hapus testimoni ini?')) return;
+      await adminFetch(`/api/admin/testimonials/${id}`, { method: 'DELETE' });
+      await loadAdminData();
+      await loadStoreData();
+    }
+
+    async function confirmTxManual(orderCode) {
+      await adminFetch(`/api/admin/transactions/${orderCode}/confirm`, { method: 'POST' });
+      alert(`Transaksi ${orderCode} dikonfirmasi lunas! Pembeli otomatis mendapat akses download.`);
+      await loadAdminData();
+    }
+  </script>
+</body>
+</html>
